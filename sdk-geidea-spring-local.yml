@@ -296,3 +296,6 @@ jobs:
       interval: 'PT1M'
       retries:
         type: 'INFINITE'
+
+some:
+  value: 'Zanzibar'
