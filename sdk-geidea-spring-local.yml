@@ -33,6 +33,12 @@ datasource:
       maximum-pool-size: 100
       minimum-idle: 20
 spring:
+  cloud:
+    bus:
+      enabled: true
+      refresh:
+        enabled: true
+
   rabbitmq:
     host: ${RABBIT_HOST:localhost}
     port: ${RABBIT_PORT:5672}
