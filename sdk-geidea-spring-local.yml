@@ -293,7 +293,7 @@ jobs:
       enabledOnInstance: true
       allowReinitInManualStatus: false
       schedulingType: 'INTERVAL'
-      interval: 'PT2M'
+      interval: 'PT10S'
       retries:
         type: 'INFINITE'
 
