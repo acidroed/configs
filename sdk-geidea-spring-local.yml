@@ -65,7 +65,7 @@ spring:
           time_zone: UTC
       show-sql: false
   quartz:
-    auto-startup: true
+    auto-startup: false
     job-store-type: jdbc
     jdbc:
       # don't use 'always' for production. It cleans quartz tables every deploy.
