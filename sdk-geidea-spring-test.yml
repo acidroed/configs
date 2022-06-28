@@ -1,0 +1,303 @@
+#Spring boot 2 config
+server:
+  http2:
+    enabled: true
+  servlet:
+    context-path: /api/v1
+    multipart:
+      max-file-size: 200MB
+      max-request-size: 200MB
+  port: 8443
+  ssl:
+    key-store: classpath:keystore.p12
+    key-store-type: PKCS12
+    key-store-password: password
+    key-alias: tomcat
+    enabled: true
+
+datasource:
+  write:
+    jdbcUrl: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:sdk}?serverTimezone=UTC
+    username: ${POSTGRES_USER:ps-user}
+    password: ${POSTGRES_PASSWORD:ps-user}
+    driverClassName: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 100
+      minimum-idle: 20
+  read:
+    jdbcUrl: jdbc:postgresql://${POSTGRES_READ_HOST:localhost}:${POSTGRES_READ_PORT:5432}/${POSTGRES_READ_DB:sdk}?serverTimezone=UTC
+    username: ${POSTGRES_READ_USER:ps-user}
+    password: ${POSTGRES_READ_PASSWORD:ps-user}
+    driverClassName: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 100
+      minimum-idle: 20
+spring:
+  cloud:
+    bus:
+      enabled: true
+      refresh:
+        enabled: true
+
+  rabbitmq:
+    host: ${RABBIT_HOST:localhost}
+    port: ${RABBIT_PORT:5672}
+    username: ${RABBIT_USER:guest}
+    password: ${RABBIT_PASSWORD:guest}
+
+  batch:
+    job:
+      enabled: false
+  jpa:
+    hibernate:
+      #disable because we use flyway for db management
+      #and don't use flyway autoconfigure (we create flyway instance at each module)
+      ddl-auto: none
+      naming:
+        implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyJpaCompliantImpl
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    properties:
+      hibernate:
+        enable_lazy_load_no_trans: true
+        generate_statistics: false
+        format_sql: false
+        jdbc:
+          time_zone: UTC
+      show-sql: false
+  quartz:
+    auto-startup: false
+    job-store-type: jdbc
+    jdbc:
+      # don't use 'always' for production. It cleans quartz tables every deploy.
+      initialize-schema: never
+    properties:
+      org:
+        quartz:
+          scheduler:
+            instanceId: AUTO
+          jobStore:
+            driverDelegateClass: org.quartz.impl.jdbcjobstore.PostgreSQLDelegate
+            misfireThreshold: 60000 #The number of milliseconds the dispatcher will "tolerate" a Trigger to pass its next startup time before being considered a "fire".The default value (if you do not enter this property in the configuration) is 60000 (60 seconds).
+            clusterCheckinInterval: 5000 #Set the frequency (in milliseconds) of this instance 'checkin'* with other instances of the cluster.Affects the speed of detecting failed instances.
+            isClustered: true #Turn on Clustering
+  jackson:
+    serialization:
+      WRITE_DATES_AS_TIMESTAMPS: false
+    time-zone: 'UTC'
+  main:
+    #    for dev purposes. Don't create all beans during startup but on demand
+    lazy-initialization: false
+  data:
+    mongodb:
+      authentication-database: ${MONGO_DB_AUTH:admin}
+      database: ${MONGO_DB_DATABASE:tx_viewer}
+      port: ${MONGO_DB_PORT:27017}
+      host: ${MONGO_DB_HOST:localhost}
+      #      password: ${MONGO_DB_PASSWORD:sdk_password}
+      #      username: ${MONGO_DB_USER:ps_user}
+      #      user: root
+      #      pass: root
+      #      ssl-enable: true
+      #      ssl-self-signed: true
+      #      allow-invalid-hostname: true
+      min-connections-per-host: 1
+      max-connections-per-host: 100
+      #max connection idle time in ms
+      max-connection-idle-time: 60000
+  flyway:
+    locations: 'classpath:sdk/finance/core/db/migration'
+    table: 'migrations_core'
+    baseline-version: '0.1'
+    default-schema: 'public'
+    baseline-on-migrate: true
+    schemas: [ 'public' ]
+    ignore-future-migrations: true
+    validate-on-migrate: false
+  #  example of mail config (with sdk test mail server credentials)
+  #  NOTE!
+  # if you want to enable email server please set notifications.email.enabled= true as well
+  mail:
+    host: 'mail.sdk.finance'
+    port: 587
+    properties:
+      mail:
+        starttls:
+          enable: true
+        auth: true
+    username: 'sender@sdkfinance.tech'
+    password: 'qrSbSEpVz7'
+#APP Configs
+application:
+  logo-path: 'https://sdk-public-res.s3-eu-west-1.amazonaws.com/img/sandbox/logo.png'
+  scheme: 'https'
+  host: 'local.sdk.finance'
+  web-module: ''
+  #  TODO: allow to set up patterns here - it will be useful for creating redirects to external URLs
+  redirects:
+    registration-email: '/confirm'
+    restore-password-email: '/confirm'
+    profile-confirmation-email: '/confirm'
+    pin-ban-removal: '/confirm'
+  serial:
+    additional-validation: true
+    generator:
+    bound:
+      lower: ''
+      upper: ''
+  referral-link:
+    use-non-default-host: false
+    host: 'https://localhost:8443/'
+    suffix: '/#/entrance/register-affiliate?referralLinkId=%s'
+  security:
+    front-host-urls:
+      - '*'
+
+jwt:
+  secret: sdk.finance.secret
+
+springdoc:
+  swagger-ui:
+    path: '/swagger-ui.html'
+    operationsSorter: 'method'
+  api-docs:
+    path: '/v3/api-docs'
+
+system:
+  initialization:
+    enable: true
+    version: 0
+
+keycloak:
+  enabled: false
+
+users:
+  coins:
+    create-on-registration:
+      settings:
+        - coin-types: [ 'client' ]
+          roles: [ 'individual' ]
+          emitents: [ 'EUR', 'USD' ]
+          name-pattern: 'Test %2$s coin'
+          amount: 0
+core:
+  system:
+    parallelism:
+      enabled: true
+      cores: 0
+      size-factor: 20
+      retries-on-lock: 10
+      delayed-transaction-processing: 0
+      parallel-intensity: HIGH
+
+jobs:
+  timers:
+    smart-card-timer:
+      group: 'smartCard'
+      enabled: false
+      enabledOnInstance: true
+      allowReinitInManualStatus: false
+      schedulingType: 'CRON'
+      cron: '0 0 0 1/1 * ? *'
+      retries:
+        type: 'INFINITE'
+    subscription-timer:
+      group: 'subscription'
+      enabled: false
+      enabledOnInstance: true
+      allowReinitInManualStatus: false
+      schedulingType: 'CRON'
+      cron: '0 * * ? * *'
+      retries:
+        type: 'INFINITE'
+    tx-finish-timer:
+      group: 'gate'
+      enabled: false
+      enabledOnInstance: true
+      allowReinitInManualStatus: false
+      schedulingType: 'CRON'
+      cron: '0 * * ? * * *'
+      retries:
+        type: 'INFINITE'
+      process-data:
+        dataOlderThanInterval: 'PT2M'
+        dataNotOlderThanInterval: 'PT10M'
+    purchase-finish-timer:
+      group: 'gate'
+      enabled: false
+      enabledOnInstance: true
+      allowReinitInManualStatus: false
+      schedulingType: 'CRON'
+      cron: '0 * * ? * * *'
+      retries:
+        type: 'INFINITE'
+      process-data:
+        dataOlderThanInterval: 'PT2M'
+        dataNotOlderThanInterval: 'P4D'
+    refresh-products-timer:
+      group: 'gate'
+      enabled: false
+      enabledOnInstance: true
+      allowReinitInManualStatus: false
+      schedulingType: 'CRON'
+      cron: '0 0/20 * ? * * *'
+      retries:
+        type: 'INFINITE'
+    capture-timer:
+      group: 'gate-card'
+      enabled: false
+      enabledOnInstance: true
+      allowReinitInManualStatus: false
+      schedulingType: 'CRON'
+      cron: '0 0/1 0 ? * * *'
+      retries:
+        type: 'INFINITE'
+      process-data:
+        timePeriod: 'P5D'
+    card-attachment-timer:
+      group: 'gate-card'
+      enabled: false
+      enabledOnInstance: true
+      allowReinitInManualStatus: false
+      schedulingType: 'CRON'
+      cron: '0 0/10 0 ? * * *'
+      retries:
+        type: 'INFINITE'
+    media-cleaning-timer:
+      group: 'media'
+      enabled: false
+      enabledOnInstance: true
+      allowReinitInManualStatus: false
+      schedulingType: 'CRON'
+      cron: '0/10 0 0 ? * * *'
+      retries:
+        type: 'INFINITE'
+      process-data:
+        bucketSize: 10
+    business-request-timer:
+      group: 'business-request'
+      enabled: false
+      enabledOnInstance: true
+      allowReinitInManualStatus: false
+      schedulingType: 'CRON'
+      cron: '0 0/2 0 ? * * *'
+      retries:
+        type: 'INFINITE'
+    invoice-expire-timer:
+      group: 'invoice'
+      enabled: false
+      enabledOnInstance: true
+      allowReinitInManualStatus: false
+      schedulingType: 'CRON'
+      cron: '0 15 0 ? * * *'
+      retries:
+        type: 'INFINITE'
+    coin-linearization-timer:
+      group: 'coin'
+      enabled: true
+      enabledOnInstance: true
+      allowReinitInManualStatus: false
+      schedulingType: 'INTERVAL'
+      interval: 'PT1M'
+      retries:
+        type: 'INFINITE'
