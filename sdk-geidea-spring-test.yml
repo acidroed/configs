@@ -42,8 +42,8 @@ spring:
   rabbitmq:
     host: ${RABBIT_HOST:localhost}
     port: ${RABBIT_PORT:5672}
-    username: ${RABBIT_USER:ps_user}
-    password: ${RABBIT_PASSWORD:hPkKgjH4XXNrFISB}
+    username: ${RABBIT_USER:guest}
+    password: ${RABBIT_PASSWORD:guest}
 
   batch:
     job:
@@ -77,6 +77,7 @@ spring:
           scheduler:
             instanceId: AUTO
           jobStore:
+            #            class: org.quartz.impl.jdbcjobstore.JobStoreTX #Persistence Configuration
             driverDelegateClass: org.quartz.impl.jdbcjobstore.PostgreSQLDelegate
             misfireThreshold: 60000 #The number of milliseconds the dispatcher will "tolerate" a Trigger to pass its next startup time before being considered a "fire".The default value (if you do not enter this property in the configuration) is 60000 (60 seconds).
             clusterCheckinInterval: 5000 #Set the frequency (in milliseconds) of this instance 'checkin'* with other instances of the cluster.Affects the speed of detecting failed instances.
@@ -109,9 +110,7 @@ spring:
     locations: 'classpath:sdk/finance/core/db/migration'
     table: 'migrations_core'
     baseline-version: '0.1'
-    default-schema: 'public'
     baseline-on-migrate: true
-    schemas: [ 'public' ]
     ignore-future-migrations: true
     validate-on-migrate: false
   #  example of mail config (with sdk test mail server credentials)
@@ -189,6 +188,10 @@ core:
       retries-on-lock: 10
       delayed-transaction-processing: 0
       parallel-intensity: HIGH
+
+notification:
+  sms:
+    provider: log
 
 jobs:
   timers:
