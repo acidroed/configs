@@ -110,6 +110,7 @@ spring:
     locations: 'classpath:sdk/finance/core/db/migration'
     table: 'migrations_core'
     baseline-version: '0.1'
+    default-schema: 'public'
     baseline-on-migrate: true
     ignore-future-migrations: true
     validate-on-migrate: false
