@@ -306,3 +306,7 @@ jobs:
       interval: 'PT1M'
       retries:
         type: 'INFINITE'
+
+some:
+  env:
+    variable: ${SOME_ENV_VAR:variable}
