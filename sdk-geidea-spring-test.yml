@@ -111,6 +111,7 @@ spring:
     table: 'migrations_core'
     baseline-version: '0.1'
     default-schema: 'public'
+    schemas: [ 'public' ]
     baseline-on-migrate: true
     ignore-future-migrations: true
     validate-on-migrate: false
