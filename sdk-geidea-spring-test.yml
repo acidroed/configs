@@ -111,7 +111,6 @@ spring:
     table: 'migrations_core'
     baseline-version: '0.1'
     default-schema: 'public'
-    schemas: [ 'public' ]
     baseline-on-migrate: true
     ignore-future-migrations: true
     validate-on-migrate: false
@@ -153,7 +152,9 @@ application:
   security:
     front-host-urls:
       - '*'
-
+  ledger:
+    schema: ${LEDGER_SCHEMA:public}
+    name: ${LEDGER_NAME:ledger}
 jwt:
   secret: sdk.finance.secret
 
@@ -191,13 +192,10 @@ core:
       delayed-transaction-processing: 0
       parallel-intensity: HIGH
 
-notification:
-  sms:
-    provider: log
-
 jobs:
   timers:
     smart-card-timer:
+      isLedgerTimer: false
       group: 'smartCard'
       enabled: false
       enabledOnInstance: true
@@ -215,40 +213,8 @@ jobs:
       cron: '0 * * ? * *'
       retries:
         type: 'INFINITE'
-    tx-finish-timer:
-      group: 'gate'
-      enabled: false
-      enabledOnInstance: true
-      allowReinitInManualStatus: false
-      schedulingType: 'CRON'
-      cron: '0 * * ? * * *'
-      retries:
-        type: 'INFINITE'
-      process-data:
-        dataOlderThanInterval: 'PT2M'
-        dataNotOlderThanInterval: 'PT10M'
-    purchase-finish-timer:
-      group: 'gate'
-      enabled: false
-      enabledOnInstance: true
-      allowReinitInManualStatus: false
-      schedulingType: 'CRON'
-      cron: '0 * * ? * * *'
-      retries:
-        type: 'INFINITE'
-      process-data:
-        dataOlderThanInterval: 'PT2M'
-        dataNotOlderThanInterval: 'P4D'
-    refresh-products-timer:
-      group: 'gate'
-      enabled: false
-      enabledOnInstance: true
-      allowReinitInManualStatus: false
-      schedulingType: 'CRON'
-      cron: '0 0/20 * ? * * *'
-      retries:
-        type: 'INFINITE'
     capture-timer:
+      isLedgerTimer: false
       group: 'gate-card'
       enabled: false
       enabledOnInstance: true
@@ -269,6 +235,7 @@ jobs:
       retries:
         type: 'INFINITE'
     media-cleaning-timer:
+      isLedgerTimer: false
       group: 'media'
       enabled: false
       enabledOnInstance: true
@@ -280,6 +247,7 @@ jobs:
       process-data:
         bucketSize: 10
     business-request-timer:
+      isLedgerTimer: false
       group: 'business-request'
       enabled: false
       enabledOnInstance: true
@@ -289,6 +257,7 @@ jobs:
       retries:
         type: 'INFINITE'
     invoice-expire-timer:
+      isLedgerTimer: false
       group: 'invoice'
       enabled: false
       enabledOnInstance: true
@@ -298,6 +267,8 @@ jobs:
       retries:
         type: 'INFINITE'
     coin-linearization-timer:
+      isLedgerTimer: true
+      ledgerName: ${LEDGER_NAME:ledger}
       group: 'coin'
       enabled: true
       enabledOnInstance: true
@@ -306,7 +277,3 @@ jobs:
       interval: 'PT1M'
       retries:
         type: 'INFINITE'
-
-some:
-  env:
-    variable: ${SOME_ENV_VAR:variable}
