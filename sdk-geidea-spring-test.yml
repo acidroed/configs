@@ -278,3 +278,15 @@ jobs:
       interval: 'PT20S'
       retries:
         type: 'INFINITE'
+      timerTimeout: 'PT1M'
+    check-timers-timeout-timer:
+      isLedgerTimer: false
+      ledgerName: ${LEDGER_NAME:ledger}
+      group: 'timerTimeout'
+      enabled: true
+      enabledOnInstance: true
+      schedulingType: 'INTERVAL'
+      interval: 'PT1M'
+      retries:
+        type: 'INFINITE'
+      timerTimeout: 'PT1H'
